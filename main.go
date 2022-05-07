@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"goblog/pkg/database"
 	"goblog/pkg/logger"
-	"goblog/pkg/route"
+	"goblog/pkg/routes"
 	"goblog/pkg/types"
 	"html/template"
 	"net/http"
@@ -70,7 +70,7 @@ func (a Article) Delete() (rowsAffected int64, err error) {
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 1. 获取 URL 参数
-	id := route.GetRouteVariable("id", r)
+	id := routes.GetRouteVariable("id", r)
 
 	// 2. 读取对应的文章数据
 	article, err := getArticleByID(id)
@@ -90,7 +90,7 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 		// 4. 读取成功
 		tmpl, err := template.New("show.gohtml").
 			Funcs(template.FuncMap{
-				"RouteName2URL": route.Name2URL,
+				"RouteName2URL": routes.Name2URL,
 				"Int64ToString": types.Int64ToString,
 			}).
 			ParseFiles("resources/views/articles/show.gohtml")
@@ -260,7 +260,7 @@ func getArticleByID(id string) (Article, error) {
 
 func articlesEditHandler(w http.ResponseWriter, r *http.Request) {
 	// 1.获取 URL 参数
-	id := route.GetRouteVariable("id", r)
+	id := routes.GetRouteVariable("id", r)
 
 	// 2.读取对应的文章数据
 	article, err := getArticleByID(id)
@@ -312,7 +312,7 @@ func validateArticleFormData(title string, body string) map[string]string {
 
 func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. 获取 URL 参数
-	id := route.GetRouteVariable("id", r)
+	id := routes.GetRouteVariable("id", r)
 
 	// 2. 读取对应的文章数据
 	_, err := getArticleByID(id)
@@ -377,7 +377,7 @@ func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 1. 获取 URL 参数
-	id := route.GetRouteVariable("id", r)
+	id := routes.GetRouteVariable("id", r)
 
 	// 2. 读取对应的文章数据
 	article, err := getArticleByID(id)
@@ -423,11 +423,8 @@ func main() {
 	database.Initialize()
 	db = database.DB
 
-	route.Initialize()
-	router = route.Router
-
-	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
-	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
+	routes.Initialize()
+	router = routes.Router
 
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
 	router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
@@ -436,9 +433,6 @@ func main() {
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
-
-	// 自定义 404 页面
-	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	// 中间件：强制内容类型为 HTML
 	router.Use(forceHTMLMiddleware)
