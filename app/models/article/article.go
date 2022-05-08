@@ -10,7 +10,7 @@ import (
 type Article struct {
 	models.BaseModel
 
-	Title string
+	Title string `gorm:"column:title;type:varchar(255);not null"`
 	Body  string
 }
 
