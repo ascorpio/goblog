@@ -3,7 +3,8 @@ package main
 import (
 	"goblog/app/http/middlewares"
 	"goblog/bootstrap"
-	"goblog/pkg/config"
+	"goblog/config"
+	c "goblog/pkg/config"
 	"net/http"
 )
 
@@ -19,5 +20,5 @@ func main() {
 	// 初始化路由绑定
 	router := bootstrap.SetupRoute()
 
-	http.ListenAndServe(":"+config.GetString("app.port"), middlewares.RemoveTrailingSlash(router))
+	http.ListenAndServe(":"+c.GetString("app.port"), middlewares.RemoveTrailingSlash(router))
 }

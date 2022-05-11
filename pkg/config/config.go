@@ -35,11 +35,6 @@ func init() {
 	Viper.AutomaticEnv()
 }
 
-// Initialize 配置信息初始化
-func Initialize() {
-	// 触发加载本目录下其他文件中的 init 方法
-}
-
 // Env 读取环境变量，支持默认值
 func Env(envName string, defaultValue ...interface{}) interface{} {
 	if len(defaultValue) > 0 {
