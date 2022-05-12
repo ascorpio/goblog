@@ -3,11 +3,13 @@ package controllers
 import (
 	"fmt"
 	"goblog/app/models/article"
+	"goblog/app/models/category"
 	"goblog/app/policies"
 	"goblog/app/requests"
 	"goblog/pkg/auth"
 	"goblog/pkg/config"
 	"goblog/pkg/route"
+	"goblog/pkg/types"
 	"goblog/pkg/view"
 	"net/http"
 )
@@ -58,7 +60,11 @@ func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 
 // Create 文章创建页面
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
-	view.Render(w, view.D{}, "articles.create", "articles._form_field")
+	// 读取分类
+	categories, _ := category.All()
+	view.Render(w, view.D{
+		"Categories": categories,
+	}, "articles.create", "articles._form_field")
 }
 
 // Store 文章创建页面
@@ -69,6 +75,9 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 		Title:  r.PostFormValue("title"),
 		Body:   r.PostFormValue("body"),
 		UserID: currentUser.ID,
+
+		// 获取分类ID
+		CategoryID: types.StringToUint64(r.PostFormValue("category_id")),
 	}
 
 	// 2. 表单验证
@@ -143,6 +152,14 @@ func (ac *ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 			// 4.1 表单验证
 			_article.Title = r.PostFormValue("title")
 			_article.Body = r.PostFormValue("body")
+
+			// 接收更换的分类ID
+			cid := r.PostFormValue("category_id")
+			_category, err := category.Get(cid)
+			if err != nil {
+				ac.ResponseForSQLError(w, err)
+			}
+			_article.Category = _category
 
 			errors := requests.ValidateArticleForm(_article)
 
