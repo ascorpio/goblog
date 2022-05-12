@@ -18,7 +18,7 @@ func RegisterWebRoutes(r *mux.Router) {
 
 	// 文章相关页面
 	ac := new(controllers.ArticlesController)
-	r.HandleFunc("/", ac.Index).Methods("GET").Name("articles.index")
+	r.HandleFunc("/", ac.Index).Methods("GET").Name("home")
 	r.HandleFunc("/articles/{id:[0-9]+}", ac.Show).Methods("GET").Name("articles.show")
 	r.HandleFunc("/articles/create", middlewares.Auth(ac.Create)).Methods("GET").Name("articles.create")
 	r.HandleFunc("/articles", middlewares.Auth(ac.Store)).Methods("POST").Name("articles.store")
